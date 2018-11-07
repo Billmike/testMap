@@ -15,10 +15,9 @@ class App extends Component {
   }
 
   searchPlaces = (place) => {
-    axios.get(`${'https://cors-anywhere.herokuapp.com/'}https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${place}&inputtype=textquery&fields=geometry&key=AIzaSyAaW6aou2PiPHgD15WYQ32kWShG6V9dOcM`, {
-      crossdomain: true
-    })
+    axios.get(`${'https://cors-anywhere.herokuapp.com/'}https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${place}&inputtype=textquery&fields=geometry&key=AIzaSyAaW6aou2PiPHgD15WYQ32kWShG6V9dOcM`)
       .then(response => {
+        // console.log('the response', response)
         this.setState({ currentLocation: { latitude: response.data.candidates[0].geometry.location.lat, longitude: response.data.candidates[0].geometry.location.lng } })
       }).catch(error => {
         console.error('Error message', error)
@@ -34,6 +33,7 @@ class App extends Component {
 
   onChangeEvent = (event) => {
     const inptValue = event.target.value;
+    // console.log('What I am typing', inptValue)
     this.setState({ searchText: inptValue })
   }
 
