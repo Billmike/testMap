@@ -1,74 +1,54 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
-import Map from './Map';
+import axios from 'axios';
+import MainMap from './MainMap';
 import mapData from './data';
 
 class App extends Component {
   state = {
     currentLocation: {
-      latitude: -34.397,
-      longitude: 150.644
+      latitude: this.props.latitude,
+      longitude: this.props.longitude
     },
     loading: true,
+    searchText: ''
   }
 
-  componentDidMount () {
-    this.renderMap()
-  }
-
-  renderMap = () => {
-    loadScript("https://maps.googleapis.com/maps/api/js?key=AIzaSyAw1zriz4pPpa2YVpyr9tAhomDohpi2FBg&callback=initMap")
-    window.initMap = this.initMap;
-  }
-
-  initMap = () => {
-    navigator.geolocation.getCurrentPosition(position => {
-      const { latitude, longitude } = position.coords;
-      
-      this.setState({ currentLocation: { latitude, longitude }, loading: false }, () => {
-        let userLocation = {lat: this.state.currentLocation.latitude, lng: this.state.currentLocation.longitude}
-        let map = new window.google.maps.Map(document.getElementById('map'), {
-          center: userLocation,
-          zoom: 3,
-          mapId: 'terrain'
-        });
-        const getCircle = (disease) => {
-          let lowerCaseDisease = disease.toLowerCase();
-          return {
-            path: window.google.maps.SymbolPath.CIRCLE,
-            fillColor: lowerCaseDisease === "triclosan" ? 'black' : 'red',
-            fillOpacity: .6,
-            scale: 16,
-            strokeColor: 'white',
-            strokeWeight: .5
-          }
-        }
-        mapData.map(location => {
-          const { longitude, latitude, disease, country } = location;
-          let userLocation = { lat: parseInt(latitude, 10), lng: parseInt(longitude, 10) };
-          let marker = new window.google.maps.Marker({
-            position: userLocation,
-            icon: getCircle(disease),
-            map,
-            title: `${disease}, ${country}`
-          })
-        })
-      })
-    }, () => {
-      this.setState({ loading: false })
+  searchPlaces = (place) => {
+    axios.get(`${'https://cors-anywhere.herokuapp.com/'}https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${place}&inputtype=textquery&fields=geometry&key=AIzaSyAaW6aou2PiPHgD15WYQ32kWShG6V9dOcM`, {
+      crossdomain: true
     })
-    
+      .then(response => {
+        this.setState({ currentLocation: { latitude: response.data.candidates[0].geometry.location.lat, longitude: response.data.candidates[0].geometry.location.lng } })
+      }).catch(error => {
+        console.error('Error message', error)
+      });
+  }
+
+  onPressEnter = (event) => {
+    let searchTextFromState = this.state.searchText;
+    if (event.key === "Enter") {
+      this.searchPlaces(searchTextFromState);
+    }
+  }
+
+  onChangeEvent = (event) => {
+    const inptValue = event.target.value;
+    this.setState({ searchText: inptValue })
   }
 
   render() {
-    const { loading } = this.state;
-    if (loading) {
-      return <p>Loading disease distribution.......</p>
-    }
+    const { searchText} = this.state;
     return (
       <main>
-        <div id="map"></div>
+        <input
+          id="searchID"
+          placeholder="Search for a location"
+          value={searchText}
+          onKeyPress={this.onPressEnter}
+          onChange={this.onChangeEvent}
+        />
+        <MainMap latitude={this.state.currentLocation.latitude} longitude={this.state.currentLocation.longitude} />
       </main>
     );
   }

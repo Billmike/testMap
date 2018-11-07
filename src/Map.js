@@ -1,6 +1,7 @@
 import React from 'react';
 import { compose, withProps } from "recompose"
 import { withScriptjs, withGoogleMap, GoogleMap, Marker } from "react-google-maps"
+import MapData from './data';
 
 class MyMapComponent extends React.Component {
   state = {
@@ -32,7 +33,16 @@ class MyMapComponent extends React.Component {
         defaultZoom={8}
         defaultCenter={{ lat: currentLocation.latitude, lng: currentLocation.longitude }}
       >
-      {isMarkerShown && <Marker position={{ lat: currentLocation.latitude, lng: currentLocation.longitude }} />}
+      {isMarkerShown && 
+        MapData.map(location => {
+          const { longitude, latitude, disease, country } = location;
+          let userLocation = { lat: parseInt(latitude, 10), lng: parseInt(longitude, 10) };
+          return(
+            <Marker
+              position={{ lat: parseInt(latitude, 10), lng: parseInt(longitude, 10) }}
+            />)
+        })
+        }
     </GoogleMap>
     )
   }
