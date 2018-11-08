@@ -1,0 +1,19 @@
+h1{
+  text-align: center;
+  color: white;
+  font-family: 'KoHo', sans-serif;
+}
+
+.liquidFillGaugeText {
+   font-family: Helvetica;
+   font-weight: bold; }
+blockquote{
+  text-align: center;
+}
+.circle{
+  display: inline-block;
+}
+
+.main h1{
+    color: #000;
+}
